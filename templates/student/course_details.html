@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.course_name }} - Course Room{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('student.courses') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Courses
+    </a>
+    <h3 class="font-heading fw-bold text-indigo" style="color: var(--accent-indigo) !important;">{{ course.course_name }}</h3>
+    <p class="text-secondary">{{ course.description or 'No description.' }}</p>
+</div>
+
+<div class="row g-4">
+    <!-- Center Column: Materials & Assignments -->
+    <div class="col-lg-8">
+        <!-- Study Materials -->
+        <div class="card glass-panel shadow-sm p-4 mb-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-folder2-open text-cyan me-2"></i> Course Study Materials</h5>
+            
+            <div class="list-group list-group-flush">
+                {% if materials %}
+                    {% for m in materials %}
+                    <div class="list-group-item bg-transparent d-flex justify-content-between align-items-center py-3" style="border-color: var(--border-color);">
+                        <div>
+                            <h6 class="fw-bold mb-1"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> {{ m.title }}</h6>
+                            <span class="text-muted fs-7" style="font-size: 0.75rem;"><i class="bi bi-calendar3 me-1"></i> Uploaded: {{ m.upload_date.strftime('%d %b %Y') }}</span>
+                        </div>
+                        <a href="{{ url_for('static', filename='uploads/' + m.file_path) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                            <i class="bi bi-download"></i> Download
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No lecture documents uploaded.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Assignments Section -->
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-text-fill text-warning me-2"></i> Assignments Homework</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if assignments %}
+                    {% for a in assignments %}
+                    {% set submission = submissions_map.get(a.assignment_id) %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ a.title }}</h6>
+                                <p class="text-secondary small mb-2">{{ a.description or 'No criteria instructions.' }}</p>
+                            </div>
+                            {% if submission %}
+                                {% if submission.marks is not none %}
+                                    <span class="badge bg-success py-2 px-3 fw-bold">Graded: {{ submission.marks }}/100</span>
+                                {% else %}
+                                    <span class="badge bg-info py-2 px-3 fw-bold">Submitted</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-danger py-2 px-3 fw-bold">Pending</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center pt-2 border-top" style="border-color: var(--border-color) !important; font-size: 0.8rem;">
+                            <span class="text-muted"><i class="bi bi-calendar-event me-1"></i> Due: {{ a.due_date.strftime('%d-%b-%Y at %I:%M %p') }}</span>
+                            
+                            {% if not submission %}
+                                {% if a.due_date > now %}
+                                <form action="{{ url_for('student.submit_assignment', assignment_id=a.assignment_id) }}" method="POST" enctype="multipart/form-data" class="d-flex gap-2 align-items-center mt-2 mt-md-0">
+                                    <input type="file" name="file" class="form-control form-control-sm custom-input py-1" style="width: 220px;" required>
+                                    <button type="submit" class="btn btn-sm btn-accent py-1">
+                                        <i class="bi bi-cloud-upload-fill"></i> Submit
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Closed (Lapsed Due Date)</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-secondary"><i class="bi bi-check2-circle text-success me-1"></i> Submitted file: <code>{{ submission.file_path }}</code></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No assignments assigned yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Quizzes -->
+    <div class="col-lg-4">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-patch-question-fill text-indigo me-2"></i> Online Quizzes</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if quizzes %}
+                    {% for q in quizzes %}
+                    {% set result = results_map.get(q.quiz_id) %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <h6 class="fw-bold mb-2">{{ q.title }}</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Marks: <strong>{{ q.total_marks }}</strong></span>
+                            {% if result %}
+                                <span class="badge bg-success py-1.5 px-2">Score: {{ result.marks }}/{{ q.total_marks }}</span>
+                            {% else %}
+                                {% if q.questions|length > 0 %}
+                                    <a href="{{ url_for('student.attempt_quiz', quiz_id=q.quiz_id) }}" class="btn btn-sm btn-outline-warning py-1.5 px-3">
+                                        Attempt <i class="bi bi-chevron-right ms-1"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-secondary py-1.5 px-2 text-muted">Draft</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No quizzes configured.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

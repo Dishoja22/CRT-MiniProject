@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance - {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <h3 class="font-heading fw-bold">{{ course.course_name }}</h3>
+    <p class="text-secondary">Mark and manage student attendance registers</p>
+</div>
+
+<div class="card glass-panel shadow-sm p-4 mb-4">
+    <!-- Date Picker Selector -->
+    <div class="row mb-4 align-items-end">
+        <div class="col-md-4">
+            <form action="{{ url_for('faculty.course_attendance', course_id=course.course_id) }}" method="GET" id="dateFilterForm">
+                <label class="form-label text-secondary small fw-medium">Select Session Date</label>
+                <input type="date" name="date" class="form-control custom-input" value="{{ selected_date }}" onchange="document.getElementById('dateFilterForm').submit();">
+            </form>
+        </div>
+        <div class="col text-end">
+            <span class="text-secondary small"><i class="bi bi-info-circle me-1"></i> Total Enrolled Students: <strong>{{ students|length }}</strong></span>
+        </div>
+    </div>
+
+    <!-- Attendance Form -->
+    <form action="{{ url_for('faculty.course_attendance', course_id=course.course_id) }}" method="POST">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        
+        <div class="table-responsive mb-4">
+            <table class="table custom-table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Student Name</th>
+                        <th>Department</th>
+                        <th class="text-center" style="width: 250px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if students %}
+                        {% for student in students %}
+                        {% set current_status = attendance_map.get(student.student_id) %}
+                        <tr>
+                            <td><code>{{ student.roll_number }}</code></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: bold; color: white;">
+                                        {{ student.user.full_name[0] }}
+                                    </div>
+                                    <span>{{ student.user.full_name }}</span>
+                                </div>
+                            </td>
+                            <td>{{ student.department }}</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-4">
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input check-present" type="radio" 
+                                               name="attendance_{{ student.student_id }}" 
+                                               id="pres_{{ student.student_id }}" 
+                                               value="Present"
+                                               {% if current_status == 'Present' or current_status is none %}checked{% endif %}>
+                                        <label class="form-check-label text-success fw-bold" for="pres_{{ student.student_id }}">
+                                            Present
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input check-absent" type="radio" 
+                                               name="attendance_{{ student.student_id }}" 
+                                               id="abs_{{ student.student_id }}" 
+                                               value="Absent"
+                                               {% if current_status == 'Absent' %}checked{% endif %}>
+                                        <label class="form-check-label text-danger fw-bold" for="abs_{{ student.student_id }}">
+                                            Absent
+                                        </label>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                No students enrolled in this course yet.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if students %}
+        <div class="d-flex justify-content-between align-items-center border-top pt-3" style="border-color: var(--border-color) !important;">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="selectAllPresent">All Present</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="selectAllAbsent">All Absent</button>
+            </div>
+            <button type="submit" class="btn btn-accent px-4 py-2">
+                <i class="bi bi-check-circle-fill me-1"></i> Save Roll Register
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Quick select helper keys
+    document.getElementById('selectAllPresent')?.addEventListener('click', function() {
+        document.querySelectorAll('.check-present').forEach(input => input.checked = true);
+    });
+    document.getElementById('selectAllAbsent')?.addEventListener('click', function() {
+        document.querySelectorAll('.check-absent').forEach(input => input.checked = true);
+    });
+</script>
+{% endblock %}

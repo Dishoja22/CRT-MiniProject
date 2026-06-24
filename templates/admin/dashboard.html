@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - MRLMS{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Stat Card: Students -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Total Students</div>
+            <div class="stat-card-value text-indigo">{{ total_students }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-people-fill me-1"></i> Active Learners</div>
+        </div>
+    </div>
+    <!-- Stat Card: Faculty -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Total Faculty</div>
+            <div class="stat-card-value text-cyan">{{ total_faculty }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-person-badge-fill me-1"></i> Staff Members</div>
+        </div>
+    </div>
+    <!-- Stat Card: Courses -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Total Courses</div>
+            <div class="stat-card-value text-warning">{{ total_courses }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-journal-bookmark-fill me-1"></i> Subjects Offered</div>
+        </div>
+    </div>
+    <!-- Stat Card: Assignments -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Assignments</div>
+            <div class="stat-card-value text-info">{{ total_assignments }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-file-earmark-text-fill me-1"></i> Active Projects</div>
+        </div>
+    </div>
+    <!-- Stat Card: Quiz Attempts -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Quiz Attempts</div>
+            <div class="stat-card-value text-success">{{ total_quiz_attempts }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-award-fill me-1"></i> Evaluated Tests</div>
+        </div>
+    </div>
+    <!-- Stat Card: Average Attendance -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Avg Attendance</div>
+            <div class="stat-card-value text-danger">{{ avg_attendance }}%</div>
+            <div class="text-muted small mt-2"><i class="bi bi-calendar-check-fill me-1"></i> Roll-Call Rate</div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid of 8 Analytics Charts -->
+<div id="analyticsDashboard" class="mb-5">
+    <div class="d-flex align-items-center mb-4">
+        <h4 class="m-0 font-heading fw-bold"><i class="bi bi-bar-chart-line-fill me-2" style="color: var(--accent-indigo);"></i> Institutional Analytics</h4>
+        <hr class="flex-grow-1 ms-3" style="border-color: var(--border-color);">
+    </div>
+
+    <!-- Row 1: Enrollments & Attendance -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-graph-up me-2 text-indigo"></i> Student Enrollment Trends (by Year)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartEnrollment"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-activity me-2 text-cyan"></i> Average Attendance Rate per Course (%)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartAttendance"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Submissions & Quiz Results -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-pie-chart-fill me-2 text-warning"></i> Assignment Submission Rates (%)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartAssignment"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-compass-fill me-2 text-info"></i> Quiz Performance Analysis (Average Score %)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartQuiz"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Course Popularity & Student Grades -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-star-fill me-2 text-success"></i> Course Popularity (Enrollments)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartPopularity"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-bar-chart-steps me-2 text-danger"></i> Student Grade Distribution (All Quizzes)</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartPerformance"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 4: Department & Faculty Details -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-building-fill me-2 text-primary"></i> Department Student Distribution</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartDepartment"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card glass-panel shadow-sm p-4">
+                <h6 class="font-heading fw-bold mb-3"><i class="bi bi-file-person-fill me-2 text-secondary"></i> Faculty Course Assignments</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartFaculty"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Top Performing Students -->
+    <div class="col-lg-7">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-trophy-fill me-2 text-warning"></i> Top Performing Students</h5>
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>Department</th>
+                            <th class="text-end">Avg Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_students %}
+                            {% for s in top_students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.85rem; font-weight: bold; color: white;">
+                                            {{ s.name[0] }}
+                                        </div>
+                                        <span>{{ s.name }}</span>
+                                    </div>
+                                </td>
+                                <td><code>{{ s.roll_number }}</code></td>
+                                <td>{{ s.department }}</td>
+                                <td class="text-end text-success fw-bold">{{ s.avg_marks }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No quiz data recorded yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bulletins -->
+    <div class="col-lg-5">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-heading fw-bold m-0"><i class="bi bi-megaphone-fill me-2 text-indigo"></i> Recent Announcements</h5>
+                <a href="{{ url_for('admin.manage_announcements') }}" class="btn btn-sm btn-outline-secondary">Manage</a>
+            </div>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if recent_announcements %}
+                    {% for a in recent_announcements %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <h6 class="fw-bold mb-1">{{ a.title }}</h6>
+                        <p class="text-secondary small mb-2 text-truncate-2">{{ a.message }}</p>
+                        <div class="d-flex justify-content-between text-muted fs-7" style="font-size: 0.75rem;">
+                            <span>System Bulletin</span>
+                            <span>{{ a.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No bulletins published.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

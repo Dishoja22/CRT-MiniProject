@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance Report - MRLMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="font-heading fw-bold"><i class="bi bi-calendar-check-fill text-indigo me-2"></i> Attendance ledger</h3>
+    <p class="text-secondary">Track session attendance across enrolled subjects (Minimum 75% requirement)</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Course Breakdown cards -->
+    {% if attendance_report %}
+        {% for r in attendance_report %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card p-3 border rounded glass-panel">
+                <h6 class="fw-bold mb-3 font-heading">{{ r.course_name }}</h6>
+                <div class="d-flex align-items-end justify-content-between mb-2">
+                    <span class="text-secondary small">Classes: <strong>{{ r.present }}/{{ r.total_classes }} present</strong></span>
+                    <span class="fs-4 fw-bold {% if r.percentage >= 75 %}text-success{% else %}text-danger{% endif %}">{{ r.percentage }}%</span>
+                </div>
+                <!-- Progress bar -->
+                <div class="progress" style="height: 6px; background-color: var(--border-color);">
+                    <div class="progress-bar {% if r.percentage >= 75 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ r.percentage }}%;" aria-valuenow="{{ r.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="text-end small mt-2">
+                    {% if r.percentage >= 75 %}
+                        <span class="text-success text-opacity-75 small"><i class="bi bi-check-circle"></i> Attending Satisfactorily</span>
+                    {% else %}
+                        <span class="text-danger fw-semibold small"><i class="bi bi-exclamation-triangle"></i> Attendance Shortage!</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center text-muted py-4">No enrolled courses logs.</div>
+    {% endif %}
+</div>
+
+<!-- Detailed Logs Ledger -->
+<div class="card glass-panel shadow-sm p-4">
+    <h5 class="font-heading fw-bold mb-3"><i class="bi bi-clock-history text-cyan me-2"></i> Historical Class Logs</h5>
+    
+    <div class="table-responsive">
+        <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.95rem;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Subject Course</th>
+                    <th>Teacher Name</th>
+                    <th class="text-end">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recent_logs %}
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td><strong>{{ log.attendance_date.strftime('%A, %d %b %Y') }}</strong></td>
+                        <td>{{ log.course.course_name }}</td>
+                        <td>{{ log.course.faculty.user.full_name if log.course.faculty else 'Unassigned' }}</td>
+                        <td class="text-end">
+                            {% if log.status == 'Present' %}
+                                <span class="badge badge-present py-2 px-3">Present</span>
+                            {% else %}
+                                <span class="badge badge-absent py-2 px-3">Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">No historical attendance logs recorded yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

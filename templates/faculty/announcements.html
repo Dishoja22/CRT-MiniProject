@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Broadcast Announcements - MRLMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <h3 class="font-heading fw-bold">Broadcast Announcements</h3>
+    <p class="text-secondary">Publish notice board bulletins for all students and system users</p>
+</div>
+
+<div class="row g-4">
+    <!-- Announcement Creation Form -->
+    <div class="col-lg-5">
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-megaphone-fill me-2 text-indigo"></i> Broadcast Announcement</h5>
+            <form action="{{ url_for('faculty.post_announcements') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Notice Title</label>
+                    <input type="text" name="title" class="form-control custom-input" placeholder="e.g. Technical Quiz Contest 2026" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Notice Message</label>
+                    <textarea name="message" rows="5" class="form-control custom-input" placeholder="Enter detailed information..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-accent w-100 py-2">
+                    <i class="bi bi-send-fill me-1"></i> Post Announcement
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Bulletins List -->
+    <div class="col-lg-7">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-journal-text me-2 text-cyan"></i> Active Bulletin Board</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if announcements %}
+                    {% for a in announcements %}
+                    <div class="p-3 border rounded d-flex justify-content-between align-items-start" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <div style="max-width: 100%;">
+                            <h6 class="fw-bold mb-1">{{ a.title }}</h6>
+                            <p class="text-secondary small mb-2" style="white-space: pre-line;">{{ a.message }}</p>
+                            <span class="text-muted fs-7" style="font-size: 0.75rem;"><i class="bi bi-calendar3 me-1"></i> Posted on {{ a.created_at.strftime('%d %b %Y at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-megaphone display-6 d-block mb-3 text-secondary"></i>
+                        No bulletins have been posted yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

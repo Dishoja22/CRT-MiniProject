@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}My Courses - MRLMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="font-heading fw-bold"><i class="bi bi-journal-bookmark-fill text-indigo me-2"></i> Enrolled Curriculum</h3>
+    <p class="text-secondary">View your enrolled subjects, download study resources, submit homework, and complete tests</p>
+</div>
+
+<div class="row g-4">
+    {% if courses %}
+        {% for c in courses %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 p-4 border rounded glass-panel d-flex flex-column transition-translate">
+                <h5 class="fw-bold mb-2 font-heading" style="color: var(--accent-indigo);">{{ c.course_name }}</h5>
+                <p class="text-secondary small mb-4 text-truncate-3">{{ c.description or 'No syllabus details specified by course coordinator.' }}</p>
+                
+                <div class="border-top pt-3 mt-auto" style="border-color: var(--border-color) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary small">Instructor:</span>
+                        <span class="small fw-semibold">
+                            {% if c.faculty %}
+                                {{ c.faculty.user.full_name }}
+                            {% else %}
+                                Unassigned
+                            {% endif %}
+                        </span>
+                    </div>
+                    <a href="{{ url_for('student.course_details', course_id=c.course_id) }}" class="btn btn-sm btn-accent w-100 py-2">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Enter Course Room
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center text-muted py-5">
+            <i class="bi bi-journal-x display-5 d-block mb-3 text-secondary"></i>
+            You are not enrolled in any courses. Please contact the administration.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

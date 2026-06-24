@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Reports - MRLMS{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Section: Attendance Reports -->
+    <div class="col-md-12">
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-calendar-check-fill me-2 text-success"></i> Course Attendance Reports</h5>
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subject Course Name</th>
+                            <th>Total Classes Taken</th>
+                            <th class="text-end">Average Attendance Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if attendance_report %}
+                            {% for r in attendance_report %}
+                            <tr>
+                                <td class="fw-bold">{{ r.course_name }}</td>
+                                <td>{{ r.total_classes }} classes</td>
+                                <td class="text-end">
+                                    <span class="fw-bold {% if r.avg_attendance >= 75 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ r.avg_attendance }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No attendance logs available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Section: Assignments Reports -->
+    <div class="col-lg-6">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-text-fill me-2 text-indigo"></i> Assignment Submissions Report</h5>
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Assignment</th>
+                            <th>Course</th>
+                            <th>Submissions / Enrolled</th>
+                            <th class="text-end">Submission Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if assignment_report %}
+                            {% for a in assignment_report %}
+                            <tr>
+                                <td class="fw-bold">{{ a.title }}</td>
+                                <td>{{ a.course }}</td>
+                                <td>{{ a.submissions }} / {{ a.enrolled }}</td>
+                                <td class="text-end text-cyan fw-bold">{{ a.submission_rate }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No assignments created yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Quiz Performance Reports -->
+    <div class="col-lg-6">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-award-fill me-2 text-warning"></i> Quiz Score Performance Report</h5>
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Quiz Title</th>
+                            <th>Course</th>
+                            <th>Attempts</th>
+                            <th class="text-end">Average Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if quiz_report %}
+                            {% for q in quiz_report %}
+                            <tr>
+                                <td class="fw-bold">{{ q.title }}</td>
+                                <td>{{ q.course }}</td>
+                                <td>{{ q.total_attempts }} attempts</td>
+                                <td class="text-end text-warning fw-bold">{{ q.average_marks }} / {{ q.max_marks }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No quizzes attempted.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

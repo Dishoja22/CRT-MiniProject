@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Quizzes - {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <h3 class="font-heading fw-bold">{{ course.course_name }}</h3>
+    <p class="text-secondary">Create online examinations and construct questionnaire sets</p>
+</div>
+
+<div class="row g-4">
+    <!-- Create Quiz Form -->
+    <div class="col-lg-4">
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-patch-plus-fill me-2 text-indigo"></i> Create Quiz</h5>
+            <form action="{{ url_for('faculty.course_quizzes', course_id=course.course_id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Quiz Title</label>
+                    <input type="text" name="title" class="form-control custom-input" placeholder="e.g. Relational Algebra Assessment" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-medium">Total Marks</label>
+                    <input type="number" name="total_marks" class="form-control custom-input" placeholder="e.g. 10" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-accent w-100 py-2">
+                    <i class="bi bi-check-circle-fill me-1"></i> Add Quiz
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Quizzes List -->
+    <div class="col-lg-8">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-patch-check-fill me-2 text-cyan"></i> Active Course Quizzes</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if quizzes %}
+                    {% for q in quizzes %}
+                    <div class="p-3 border rounded d-flex justify-content-between align-items-center" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-warning" style="color: var(--accent-cyan) !important;">{{ q.title }}</h6>
+                            <div class="d-flex gap-3 text-muted fs-7" style="font-size: 0.75rem;">
+                                <span><i class="bi bi-award-fill me-1"></i> Total Marks: <strong>{{ q.total_marks }}</strong></span>
+                                <span><i class="bi bi-question-circle-fill me-1"></i> Questions: <strong>{{ q.questions|length }}</strong></span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('faculty.quiz_questions', quiz_id=q.quiz_id) }}" class="btn btn-sm btn-outline-info px-3">
+                                <i class="bi bi-plus-lg me-1"></i> Questions
+                            </a>
+                            <form action="{{ url_for('faculty.delete_quiz', quiz_id=q.quiz_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this quiz? All results will be lost.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-patch-question display-6 d-block mb-3 text-secondary"></i>
+                        No quizzes designed for this course yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

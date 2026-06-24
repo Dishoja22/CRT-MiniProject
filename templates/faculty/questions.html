@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Questions - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.course_quizzes', course_id=quiz.course_id) }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Quizzes
+    </a>
+    <h3 class="font-heading fw-bold">{{ quiz.title }}</h3>
+    <p class="text-secondary">Course: <strong>{{ quiz.course.course_name }}</strong> | Target Marks: <strong>{{ quiz.total_marks }}</strong></p>
+</div>
+
+<div class="row g-4">
+    <!-- Add Question Form -->
+    <div class="col-lg-5">
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-question-circle-fill me-2 text-indigo"></i> Add MCQ Question</h5>
+            <form action="{{ url_for('faculty.quiz_questions', quiz_id=quiz.quiz_id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Question Text</label>
+                    <textarea name="question" rows="3" class="form-control custom-input" placeholder="e.g. Which normal form deals with multi-valued dependencies?" required></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-secondary small fw-medium">Option A</label>
+                        <input type="text" name="option_a" class="form-control custom-input" placeholder="Option A" required>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-secondary small fw-medium">Option B</label>
+                        <input type="text" name="option_b" class="form-control custom-input" placeholder="Option B" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-secondary small fw-medium">Option C</label>
+                        <input type="text" name="option_c" class="form-control custom-input" placeholder="Option C" required>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-secondary small fw-medium">Option D</label>
+                        <input type="text" name="option_d" class="form-control custom-input" placeholder="Option D" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-medium">Correct Option</label>
+                    <select name="correct_answer" class="form-select custom-input" required>
+                        <option value="A">Option A</option>
+                        <option value="B">Option B</option>
+                        <option value="C">Option C</option>
+                        <option value="D">Option D</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-accent w-100 py-2">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Save Question
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Questions Preview List -->
+    <div class="col-lg-7">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-list-ol me-2 text-cyan"></i> Question Bank preview ({{ questions|length }})</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if questions %}
+                    {% for q in questions %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <h6 class="fw-bold mb-2">Q{{ loop.index }}. {{ q.question }}</h6>
+                        
+                        <div class="row g-2 mb-2 small text-secondary">
+                            <div class="col-6"><strong>A.</strong> {{ q.option_a }}</div>
+                            <div class="col-6"><strong>B.</strong> {{ q.option_b }}</div>
+                            <div class="col-6"><strong>C.</strong> {{ q.option_c }}</div>
+                            <div class="col-6"><strong>D.</strong> {{ q.option_d }}</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between border-top pt-2 mt-2" style="border-color: var(--border-color) !important;">
+                            <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill"></i> Correct Option: {{ q.correct_answer }}</span>
+                            <span class="text-muted small">ID: #{{ q.question_id }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-patch-question-fill display-6 d-block mb-3 text-secondary"></i>
+                        No questions uploaded. Fill the form to create questions.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

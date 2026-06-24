@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}My Marks Sheet - MRLMS{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="font-heading fw-bold"><i class="bi bi-award-fill text-indigo me-2"></i> Academic Performance Report</h3>
+    <p class="text-secondary">Track grades and assessment evaluations for course activities</p>
+</div>
+
+<div class="row g-4">
+    <!-- Assignment Marks -->
+    <div class="col-lg-6">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-text-fill text-indigo me-2"></i> Graded Assignments</h5>
+            
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Assignment Title</th>
+                            <th>Subject</th>
+                            <th class="text-end">Score (max 100)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if submissions %}
+                            {% for s in submissions %}
+                            <tr>
+                                <td class="fw-bold">{{ s.assignment.title }}</td>
+                                <td>{{ s.assignment.course.course_name }}</td>
+                                <td class="text-end">
+                                    {% if s.marks is not none %}
+                                        <span class="text-success fw-bold">{{ s.marks }} / 100</span>
+                                    {% else %}
+                                        <span class="text-muted small">Not Graded</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No assignment submissions uploaded yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Results -->
+    <div class="col-lg-6">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-patch-check-fill text-cyan me-2"></i> Quiz Results</h5>
+            
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Quiz Title</th>
+                            <th>Subject</th>
+                            <th class="text-end">Score Obtained</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if quiz_results %}
+                            {% for r in quiz_results %}
+                            <tr>
+                                <td class="fw-bold">{{ r.quiz.title }}</td>
+                                <td>{{ r.quiz.course.course_name }}</td>
+                                <td class="text-end text-success fw-bold">{{ r.marks }} / {{ r.quiz.total_marks }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No quizzes completed yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

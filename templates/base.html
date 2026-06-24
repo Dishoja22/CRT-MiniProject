@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MRLMS - Learning Management System{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+
+    {% if current_user.is_authenticated and not error_code %}
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <i class="bi bi-mortarboard-fill me-2"></i> MRLMS Portal
+            </div>
+            
+            <ul class="sidebar-menu">
+                {% if current_user.role == 'Admin' %}
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.dashboard') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.manage_students') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.manage_students' %}active{% endif %}">
+                            <i class="bi bi-people-fill"></i> Manage Students
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.manage_faculty') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.manage_faculty' %}active{% endif %}">
+                            <i class="bi bi-person-badge-fill"></i> Manage Faculty
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.manage_courses') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.manage_courses' %}active{% endif %}">
+                            <i class="bi bi-book-half"></i> Manage Courses
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.manage_announcements') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.manage_announcements' %}active{% endif %}">
+                            <i class="bi bi-megaphone-fill"></i> Announcements
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('admin.reports') }}" class="sidebar-menu-link {% if request.endpoint == 'admin.reports' %}active{% endif %}">
+                            <i class="bi bi-graph-up-arrow"></i> Reports & Analytics
+                        </a>
+                    </li>
+                {% elif current_user.role == 'Faculty' %}
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('faculty.dashboard') }}" class="sidebar-menu-link {% if request.endpoint == 'faculty.dashboard' %}active{% endif %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('faculty.post_announcements') }}" class="sidebar-menu-link {% if request.endpoint == 'faculty.post_announcements' %}active{% endif %}">
+                            <i class="bi bi-megaphone-fill"></i> Post Announcements
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-header px-3 py-2 text-uppercase fs-7 text-muted fw-bold" style="font-size: 0.75rem;">Assigned Courses</li>
+                    {% if current_user.faculty_profile.courses %}
+                        {% for c in current_user.faculty_profile.courses %}
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('faculty.course_materials', course_id=c.course_id) }}" class="sidebar-menu-link {% if course and course.course_id == c.course_id %}active{% endif %}" style="font-size: 0.9rem;">
+                                <i class="bi bi-folder-fill"></i> {{ c.course_name[:18] }}...
+                            </a>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="px-3 py-1 text-muted fs-7" style="font-size: 0.8rem;">No courses assigned.</li>
+                    {% endif %}
+                {% elif current_user.role == 'Student' %}
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('student.dashboard') }}" class="sidebar-menu-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('student.courses') }}" class="sidebar-menu-link {% if request.endpoint in ['student.courses', 'student.course_details'] %}active{% endif %}">
+                            <i class="bi bi-journal-bookmark-fill"></i> Enrolled Courses
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('student.attendance') }}" class="sidebar-menu-link {% if request.endpoint == 'student.attendance' %}active{% endif %}">
+                            <i class="bi bi-calendar-check-fill"></i> Attendance Log
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="{{ url_for('student.marks') }}" class="sidebar-menu-link {% if request.endpoint == 'student.marks' %}active{% endif %}">
+                            <i class="bi bi-award-fill"></i> My Marks Sheet
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            
+            <div class="sidebar-footer">
+                <i class="bi bi-person-fill me-1"></i> {{ current_user.full_name[:20] }}<br>
+                <small class="text-muted">{{ current_user.role }}</small>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper" id="main-wrapper">
+            <!-- Navbar -->
+            <nav class="top-navbar">
+                <button class="btn btn-outline-secondary d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="d-none d-lg-block">
+                    <h5 class="m-0 font-heading">
+                        {% if current_user.role == 'Admin' %}
+                            Administrative Panel
+                        {% elif current_user.role == 'Faculty' %}
+                            Faculty Learning System
+                        {% else %}
+                            Student Learning Dashboard
+                        {% endif %}
+                    </h5>
+                </div>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-box-arrow-right me-1"></i> Log Out
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <main class="container-fluid p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show custom-alert shadow-sm mb-4" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    {% else %}
+        <!-- Non-authenticated Layout (Login/Register/Errors) -->
+        {% if error_code %}
+        <div class="auth-container">
+            <div class="card glass-panel auth-card text-center py-5 shadow-lg">
+                <h1 class="display-1 text-danger font-heading fw-bold mb-3">{{ error_code }}</h1>
+                <h4 class="mb-4">{{ error_message }}</h4>
+                <div>
+                    <a href="/" class="btn btn-accent px-4 py-2">
+                        <i class="bi bi-arrow-left me-2"></i> Return to Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            {% block auth_content %}{% endblock %}
+        {% endif %}
+    {% endif %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

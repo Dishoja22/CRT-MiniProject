@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz: {{ quiz.title }} - MRLMS{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-center">
+    <h3 class="font-heading fw-bold">{{ quiz.title }}</h3>
+    <p class="text-secondary">Course: <strong>{{ quiz.course.course_name }}</strong> | Target Marks: <strong>{{ quiz.total_marks }}</strong></p>
+    <div class="alert alert-warning d-inline-block small py-1.5 px-3 mb-0" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> Once submitted, answers cannot be modified. Do not refresh.
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form action="{{ url_for('student.attempt_quiz', quiz_id=quiz.quiz_id) }}" method="POST" id="quizForm">
+            {% for q in questions %}
+            <div class="card glass-panel shadow-sm p-4 mb-4">
+                <h5 class="fw-bold mb-3 font-heading">
+                    <span class="text-indigo">Question {{ loop.index }}:</span> {{ q.question }}
+                </h5>
+                
+                <div class="d-flex flex-column gap-3 ps-2">
+                    <div class="form-check custom-radio">
+                        <input class="form-check-input" type="radio" name="question_{{ q.question_id }}" id="opt_a_{{ q.question_id }}" value="A" required>
+                        <label class="form-check-label w-100" for="opt_a_{{ q.question_id }}">
+                            <strong>A.</strong> {{ q.option_a }}
+                        </label>
+                    </div>
+                    <div class="form-check custom-radio">
+                        <input class="form-check-input" type="radio" name="question_{{ q.question_id }}" id="opt_b_{{ q.question_id }}" value="B">
+                        <label class="form-check-label w-100" for="opt_b_{{ q.question_id }}">
+                            <strong>B.</strong> {{ q.option_b }}
+                        </label>
+                    </div>
+                    <div class="form-check custom-radio">
+                        <input class="form-check-input" type="radio" name="question_{{ q.question_id }}" id="opt_c_{{ q.question_id }}" value="C">
+                        <label class="form-check-label w-100" for="opt_c_{{ q.question_id }}">
+                            <strong>C.</strong> {{ q.option_c }}
+                        </label>
+                    </div>
+                    <div class="form-check custom-radio">
+                        <input class="form-check-input" type="radio" name="question_{{ q.question_id }}" id="opt_d_{{ q.question_id }}" value="D">
+                        <label class="form-check-label w-100" for="opt_d_{{ q.question_id }}">
+                            <strong>D.</strong> {{ q.option_d }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="text-center mb-5">
+                <button type="submit" class="btn btn-accent px-5 py-2.5 font-heading fw-bold" onclick="return confirm('Are you sure you want to finish the quiz?');">
+                    <i class="bi bi-check-circle-fill me-1"></i> Submit Examination
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

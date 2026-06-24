@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluate - {{ assignment.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.course_assignments', course_id=assignment.course_id) }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Assignments
+    </a>
+    <h3 class="font-heading fw-bold">{{ assignment.title }}</h3>
+    <p class="text-secondary">Course: <strong>{{ assignment.course.course_name }}</strong> | Due: {{ assignment.due_date.strftime('%d-%b-%Y %I:%M %p') }}</p>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Submissions Table -->
+    <div class="col-lg-8">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-check-fill me-2 text-success"></i> Student Submissions</h5>
+            
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Submitted File</th>
+                            <th>Date Submitted</th>
+                            <th class="text-end" style="width: 200px;">Grading Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if submissions %}
+                            {% for s in submissions %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: bold; color: white;">
+                                            {{ s.student.user.full_name[0] }}
+                                        </div>
+                                        <div>
+                                            <span>{{ s.student.user.full_name }}</span><br>
+                                            <code class="text-muted fs-7" style="font-size: 0.75rem;">{{ s.student.roll_number }}</code>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('static', filename='uploads/' + s.file_path) }}" target="_blank" style="color: var(--accent-cyan);" class="text-decoration-none fw-bold">
+                                        <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Download
+                                    </a>
+                                </td>
+                                <td>
+                                    <small class="text-secondary">{{ s.submitted_at.strftime('%d %b %Y %H:%M') }}</small>
+                                </td>
+                                <td class="text-end">
+                                    <form action="{{ url_for('faculty.view_submissions', assignment_id=assignment.assignment_id) }}" method="POST" class="d-flex gap-2 justify-content-end align-items-center">
+                                        <input type="hidden" name="submission_id" value="{{ s.submission_id }}">
+                                        <input type="number" name="marks" class="form-control custom-input text-center py-1 px-2" style="width: 70px;" min="0" max="100" value="{{ s.marks if s.marks is not none else '' }}" placeholder="--" required>
+                                        <button type="submit" class="btn btn-sm btn-accent" title="Save grade">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5">
+                                    No submissions uploaded yet for this assignment.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Submissions -->
+    <div class="col-lg-4">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-clock-history me-2 text-warning"></i> Pending Submissions ({{ pending_students|length }})</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if pending_students %}
+                    {% for student in pending_students %}
+                    <div class="p-2.5 border rounded d-flex align-items-center justify-content-between" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <div>
+                            <span class="fw-medium small d-block">{{ student.user.full_name }}</span>
+                            <code class="text-muted fs-7" style="font-size: 0.75rem;">{{ student.roll_number }}</code>
+                        </div>
+                        <span class="badge badge-absent py-1 px-2">Absent</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">All enrolled students have submitted!</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

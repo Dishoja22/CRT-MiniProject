@@ -1,0 +1,27 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# Databases
+*.db
+*.sqlite3
+
+# Local environment configuration
+.env
+
+# Uploaded documents (retain directory structure but exclude student uploads)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDEs and system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

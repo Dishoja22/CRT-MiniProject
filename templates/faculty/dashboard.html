@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - MRLMS{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Stat Card: Assigned Courses -->
+    <div class="col-md-2.4 col-sm-6 flex-grow-1">
+        <div class="stat-card">
+            <div class="stat-card-title">My Courses</div>
+            <div class="stat-card-value text-indigo">{{ total_courses }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-book-half me-1"></i> Active Classes</div>
+        </div>
+    </div>
+    <!-- Stat Card: Students Enrolled -->
+    <div class="col-md-2.4 col-sm-6 flex-grow-1">
+        <div class="stat-card">
+            <div class="stat-card-title">Students Enrolled</div>
+            <div class="stat-card-value text-cyan">{{ students_enrolled }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-people-fill me-1"></i> Total Learners</div>
+        </div>
+    </div>
+    <!-- Stat Card: Assignments Created -->
+    <div class="col-md-2.4 col-sm-6 flex-grow-1">
+        <div class="stat-card">
+            <div class="stat-card-title">Assignments</div>
+            <div class="stat-card-value text-warning">{{ assignments_created }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-file-earmark-text-fill me-1"></i> Submissions Pending</div>
+        </div>
+    </div>
+    <!-- Stat Card: Quiz Performance -->
+    <div class="col-md-2.4 col-sm-6 flex-grow-1">
+        <div class="stat-card">
+            <div class="stat-card-title">Quiz Performance</div>
+            <div class="stat-card-value text-success">{{ quiz_perf }}%</div>
+            <div class="text-muted small mt-2"><i class="bi bi-award-fill me-1"></i> Avg Quiz Grade</div>
+        </div>
+    </div>
+    <!-- Stat Card: Attendance Summary -->
+    <div class="col-md-2.4 col-sm-6 flex-grow-1">
+        <div class="stat-card">
+            <div class="stat-card-title">Attendance Summary</div>
+            <div class="stat-card-value text-danger">{{ att_summary }}%</div>
+            <div class="text-muted small mt-2"><i class="bi bi-calendar-check-fill me-1"></i> Avg Present Rate</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- List of Assigned Courses -->
+    <div class="col-lg-8">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-book-half me-2 text-indigo"></i> My Assigned Courses</h5>
+            
+            <div class="row g-3">
+                {% if courses %}
+                    {% for c in courses %}
+                    <div class="col-md-6">
+                        <div class="card h-100 p-3 border rounded glass-panel" style="background-color: rgba(255, 255, 255, 0.01);">
+                            <h6 class="fw-bold mb-1">{{ c.course_name }}</h6>
+                            <p class="text-secondary small mb-3 text-truncate-2">{{ c.description or 'No description.' }}</p>
+                            
+                            <div class="d-flex flex-wrap gap-2 mt-auto">
+                                <a href="{{ url_for('faculty.course_materials', course_id=c.course_id) }}" class="btn btn-sm btn-outline-info flex-grow-1">
+                                    <i class="bi bi-folder-fill"></i> Materials
+                                </a>
+                                <a href="{{ url_for('faculty.course_attendance', course_id=c.course_id) }}" class="btn btn-sm btn-outline-success flex-grow-1">
+                                    <i class="bi bi-calendar-check"></i> Attendance
+                                </a>
+                                <a href="{{ url_for('faculty.course_assignments', course_id=c.course_id) }}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                                    <i class="bi bi-file-earmark-text"></i> Homework
+                                </a>
+                                <a href="{{ url_for('faculty.course_quizzes', course_id=c.course_id) }}" class="btn btn-sm btn-outline-warning flex-grow-1">
+                                    <i class="bi bi-patch-question"></i> Quizzes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="bi bi-info-circle display-6 d-block mb-3 text-secondary"></i>
+                        You have not been assigned to any courses. Please contact the administrator.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulletin board -->
+    <div class="col-lg-4">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="font-heading fw-bold m-0"><i class="bi bi-megaphone-fill me-2 text-cyan"></i> Faculty Notices</h5>
+                <a href="{{ url_for('faculty.post_announcements') }}" class="btn btn-sm btn-outline-secondary">Broadcast</a>
+            </div>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if recent_announcements %}
+                    {% for a in recent_announcements %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <h6 class="fw-bold mb-1">{{ a.title }}</h6>
+                        <p class="text-secondary small mb-2 text-truncate-2">{{ a.message }}</p>
+                        <div class="d-flex justify-content-between text-muted fs-7" style="font-size: 0.75rem;">
+                            <span>System Bulletin</span>
+                            <span>{{ a.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No bulletins published.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

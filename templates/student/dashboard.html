@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - MRLMS{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Stat Card: Enrolled Courses -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Enrolled Courses</div>
+            <div class="stat-card-value text-indigo">{{ total_courses }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-book-half me-1"></i> Subjects Selected</div>
+        </div>
+    </div>
+    <!-- Stat Card: Attendance -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Attendance Rate</div>
+            <div class="stat-card-value text-cyan">{{ attendance_pct }}%</div>
+            <div class="text-muted small mt-2">
+                {% if attendance_pct >= 75 %}
+                    <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Safe zone</span>
+                {% else %}
+                    <span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Shortage! (Min 75%)</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Stat Card: Pending Assignments -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Pending Homework</div>
+            <div class="stat-card-value text-warning">{{ pending_assignments_count }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-clock-history me-1"></i> Submissions Due</div>
+        </div>
+    </div>
+    <!-- Stat Card: Quizzes Taken -->
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-card-title">Quizzes Completed</div>
+            <div class="stat-card-value text-success">{{ quiz_scores|length }}</div>
+            <div class="text-muted small mt-2"><i class="bi bi-award-fill me-1"></i> Online Tests Taken</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Pending Assignments & Quiz logs -->
+    <div class="col-lg-8">
+        <div class="card glass-panel shadow-sm p-4 mb-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-calendar-event me-2 text-indigo"></i> Upcoming Deadlines</h5>
+            
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Assignment Title</th>
+                            <th>Subject</th>
+                            <th>Due Date</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_assignments %}
+                            {% for a in recent_assignments %}
+                            <tr>
+                                <td class="fw-bold">{{ a.title }}</td>
+                                <td>{{ a.course.course_name }}</td>
+                                <td class="text-warning">{{ a.due_date.strftime('%d %b %Y %H:%M') }}</td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('student.course_details', course_id=a.course_id) }}" class="btn btn-sm btn-outline-indigo">
+                                        <i class="bi bi-box-arrow-in-right"></i> Submit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No pending deadlines recorded!</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-patch-check me-2 text-success"></i> Recent Quiz Grades</h5>
+            <div class="table-responsive">
+                <table class="table custom-table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead>
+                        <tr>
+                            <th>Quiz Title</th>
+                            <th>Subject Course</th>
+                            <th>Marks Obtained</th>
+                            <th class="text-end">Grade %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if quiz_scores %}
+                            {% for r in quiz_scores %}
+                            <tr>
+                                <td class="fw-bold">{{ r.quiz_title }}</td>
+                                <td>{{ r.course_name }}</td>
+                                <td>{{ r.score }} / {{ r.total }}</td>
+                                <td class="text-end text-success fw-bold">{{ r.percentage }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No quizzes completed yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: bulletins and metadata -->
+    <div class="col-lg-4">
+        <!-- Profile info -->
+        <div class="card glass-panel shadow-sm p-4 mb-4" style="background-color: var(--bg-sidebar);">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-person-circle text-cyan me-1"></i> Student Profile</h5>
+            <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.25rem; font-weight: bold; color: white;">
+                    {{ current_user.full_name[0] }}
+                </div>
+                <div>
+                    <h6 class="m-0 fw-bold">{{ current_user.full_name }}</h6>
+                    <code class="text-muted">{{ current_user.student_profile.roll_number }}</code>
+                </div>
+            </div>
+            <div class="small">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Department:</span>
+                    <span class="fw-bold">{{ current_user.student_profile.department }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Academic Year:</span>
+                    <span class="fw-bold">Year {{ current_user.student_profile.year }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-secondary">Section:</span>
+                    <span class="fw-bold">Section {{ current_user.student_profile.section }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulletin Board -->
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-megaphone-fill me-2 text-cyan"></i> Student Notice Board</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if recent_announcements %}
+                    {% for a in recent_announcements %}
+                    <div class="p-3 border rounded" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <h6 class="fw-bold mb-1">{{ a.title }}</h6>
+                        <p class="text-secondary small mb-2 text-truncate-2">{{ a.message }}</p>
+                        <div class="d-flex justify-content-between text-muted fs-7" style="font-size: 0.75rem;">
+                            <span>System Bulletin</span>
+                            <span>{{ a.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted small">No bulletins published.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

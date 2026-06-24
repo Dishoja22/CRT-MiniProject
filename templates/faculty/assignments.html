@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Assignments - {{ course.course_name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <h3 class="font-heading fw-bold">{{ course.course_name }}</h3>
+    <p class="text-secondary">Create assignments and evaluate student submissions</p>
+</div>
+
+<div class="row g-4">
+    <!-- Assignment Creation Panel -->
+    <div class="col-lg-4">
+        <div class="card glass-panel shadow-sm p-4">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-plus-fill me-2 text-indigo"></i> Create Assignment</h5>
+            <form action="{{ url_for('faculty.course_assignments', course_id=course.course_id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Assignment Title</label>
+                    <input type="text" name="title" class="form-control custom-input" placeholder="e.g. Lab Exercise 2: SQL Joins" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-medium">Description Instructions</label>
+                    <textarea name="description" rows="4" class="form-control custom-input" placeholder="Provide problem statement or criteria..."></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-medium">Due Date & Time</label>
+                    <input type="datetime-local" name="due_date" class="form-control custom-input" required>
+                </div>
+                <button type="submit" class="btn btn-accent w-100 py-2">
+                    <i class="bi bi-check-circle-fill me-1"></i> Launch Assignment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assignments List -->
+    <div class="col-lg-8">
+        <div class="card glass-panel shadow-sm p-4 h-100">
+            <h5 class="font-heading fw-bold mb-3"><i class="bi bi-file-earmark-text-fill me-2 text-cyan"></i> Active Assignments</h5>
+            
+            <div class="d-flex flex-column gap-3">
+                {% if assignments %}
+                    {% for a in assignments %}
+                    <div class="p-3 border rounded d-flex justify-content-between align-items-center" style="border-color: var(--border-color) !important; background-color: rgba(255,255,255,0.01);">
+                        <div style="max-width: 75%;">
+                            <h6 class="fw-bold mb-1 text-indigo" style="color: var(--accent-indigo) !important;">{{ a.title }}</h6>
+                            <p class="text-secondary small mb-2 text-truncate-2">{{ a.description or 'No criteria provided.' }}</p>
+                            <div class="d-flex gap-3 text-muted fs-7" style="font-size: 0.75rem;">
+                                <span><i class="bi bi-calendar-event me-1"></i> Due: {{ a.due_date.strftime('%d %b %Y at %I:%M %p') }}</span>
+                                <span><i class="bi bi-people-fill me-1"></i> Submissions: <strong>{{ a.submissions|length }}</strong></span>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('faculty.view_submissions', assignment_id=a.assignment_id) }}" class="btn btn-sm btn-accent px-3 py-2">
+                                <i class="bi bi-award-fill me-1"></i> Evaluate
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-file-earmark display-6 d-block mb-3 text-secondary"></i>
+                        No assignments created yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
